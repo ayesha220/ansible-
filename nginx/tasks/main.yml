@@ -1,0 +1,41 @@
+---
+- name: install nginx
+  yum:
+    name: "{{ webserver }}"
+    state: latest
+- name: firewalld rules
+  firewalld: 
+    permanent: yes
+    service: "{{ item }}"
+    state: enabled
+  with_items:
+   - http
+   - https
+- name: start the nginx service
+  service: 
+    name: "{{ webserver }}"
+    state: started 
+- name: append nginx conf file for domain
+  blockinfile:
+    dest: /etc/nginx/nginx.conf
+    block: "{{ lookup('template', 'nginx.j2') }}"
+  notify: 
+    - restart "{{ webserver }}"
+- name: add dir for domain
+  file: 
+    path: /var/www/example.com/
+    state: directory
+- name: add dir for logs
+  file: 
+    path: /var/log/nginx/example.com
+    state: directory
+  
+
+
+
+
+
+    
+
+
+    
